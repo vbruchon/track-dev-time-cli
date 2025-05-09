@@ -1,0 +1,27 @@
+{
+  "name": "track-dev-time",
+  "version": "0.0.1",
+  "description": "CLI tool to track your coding sessions with start, pause and stop commands. Outputs session data to a JSON file.",
+  "bin": {
+    "tdt": "./bin/cli.js"
+  },
+  "main": "./lib/index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"No test specified yet\" && exit 0"
+  },
+  "keywords": [
+    "cli",
+    "productivity",
+    "time-tracking",
+    "dev",
+    "developer",
+    "session",
+    "tracker"
+  ],
+  "author": "Vivian B.",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^13.1.0"
+  }
+}
