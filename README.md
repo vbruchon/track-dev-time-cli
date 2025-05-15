@@ -124,7 +124,7 @@ Example of the data stored:
 - **id**: A unique identifier for each session.
 - **start**: The timestamp when the session started.
 - **end**: The timestamp when the session ended.
-- **duration**: The total duration of the session, in minutes or hours.
+- **duration**: The total duration of the session, in secondes.
 
 #### Pauses:
 
