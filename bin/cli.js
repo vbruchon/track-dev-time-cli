@@ -18,6 +18,6 @@ program
   .command("stop")
   .description("Stop and save session")
   .action(stopTracking);
-program.command("setup ").description("Setup package").action(setupPackage);
+program.command("setup").description("Setup package").action(setupPackage);
 
 program.parse(process.argv);

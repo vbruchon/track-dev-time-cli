@@ -1,5 +1,7 @@
 # track-dev-time
 
+[![npm version](https://img.shields.io/npm/v/track-dev-time.svg)](https://www.npmjs.com/package/track-dev-time)
+
 **track-dev-time** is a CLI tool designed to automatically track your development sessions. When installed in a project, it modifies the startup scripts and tracks time seamlessly, without requiring any additional input from the user.
 
 ## Features
@@ -124,7 +126,7 @@ Example of the data stored:
 - **id**: A unique identifier for each session.
 - **start**: The timestamp when the session started.
 - **end**: The timestamp when the session ended.
-- **duration**: The total duration of the session, in secondes.
+- **duration**: The total duration of the session, in seconds.
 
 #### Pauses:
 
@@ -143,3 +145,15 @@ Once the setup is complete, you won’t need to manually run the `track-dev-time
 Each time you execute the development script (`next dev` or equivalent), **track-dev-time** automatically starts and tracks the session without requiring any additional input from the user. When the development server stops, the session is automatically ended and saved.
 
 You can continue to focus on your development work while **track-dev-time** handles all the time tracking in the background.
+
+### How Sessions End Automatically
+
+**track-dev-time** detects the end of a session when your development server stops running. This is typically triggered by one of the following:
+
+- When the process receives a termination signal (`SIGINT`, `SIGTERM`, etc.)
+- When the Node.js process naturally exits (`process.on('exit')`)
+- When the terminal is closed or the dev command is interrupted (`Ctrl+C`)
+
+The CLI uses these system signals to automatically stop the session and write the final session data to the JSON file. This way, you don’t need to manually run `track-dev-time stop`.
+
+> 💡 If the server is restarted within 15 minutes, the same session can be resumed automatically instead of starting a new one.
