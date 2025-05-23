@@ -13,6 +13,7 @@ import {
 } from "./utils.js";
 import fs from "fs";
 import { getCurrentSession } from "../lib/storage.js";
+import * as storage from "../lib/storage.js";
 
 let logSpy, errorSpy;
 
@@ -20,6 +21,7 @@ describe("markInactivity and markActivity", () => {
   beforeEach(() => {
     cleanupTestData();
     resetPauseStarted();
+    storage.__setSessionPath(TEST_PATH);
 
     mockLog(logSpy, errorSpy);
   });
@@ -30,9 +32,9 @@ describe("markInactivity and markActivity", () => {
 
   it("adds a pause with a start date", () => {
     const session = createAndSaveSession();
-    markInactivity(TEST_PATH);
+    markInactivity();
 
-    const updated = getCurrentSession(TEST_PATH);
+    const updated = getCurrentSession();
 
     expect(updated).toBeDefined();
     expect(updated.pauses).toHaveLength(1);
@@ -46,10 +48,10 @@ describe("markInactivity and markActivity", () => {
   it("close current pause with a end date", () => {
     createAndSaveSession();
 
-    markInactivity(TEST_PATH);
-    markActivity(TEST_PATH);
+    markInactivity();
+    markActivity();
 
-    const updated = getCurrentSession(TEST_PATH);
+    const updated = getCurrentSession();
 
     expect(updated).toBeDefined();
     expect(updated.pauses).toHaveLength(1);

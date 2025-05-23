@@ -21,7 +21,7 @@ export const cleanupTestData = () => {
   const dir = path.dirname(TEST_PATH);
 
   if (fs.existsSync(dir)) {
-    fs.rmdirSync(dir, { recursive: true });
+    fs.rmSync(dir, { recursive: true, force: true });
   }
 };
 
@@ -51,7 +51,7 @@ export const setupTestEnvironment = (
   TEST_GITIGNORE
 ) => {
   if (!fs.existsSync(TEST_DIR)) {
-    fs.mkdirSync(TEST_DIR);
+    fs.mkdirSync(TEST_DIR, { recursive: true });
   }
 
   const packageJson = {
@@ -67,13 +67,12 @@ export const setupTestEnvironment = (
   );
 
   fs.writeFileSync(TEST_GITIGNORE, "", "utf-8");
-
-  process.chdir(TEST_DIR);
 };
 
-export const mockLog = (logSpy, errorSpy) => {
-  logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-  errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+export const mockLog = () => {
+  const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+  const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+  return { logSpy, errorSpy };
 };
 
 export const restoreMockLog = (logSpy, errorSpy) => {

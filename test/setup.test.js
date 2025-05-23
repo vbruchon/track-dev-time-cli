@@ -15,15 +15,13 @@ describe("setupPackage()", () => {
   let errorSpy;
 
   beforeEach(() => {
-    // Isolation du dossier de test
     setupTestEnvironment(TEST_DIR, TEST_PACKAGE_JSON, TEST_GITIGNORE);
-    mockLog(logSpy, errorSpy);
+    process.chdir(TEST_DIR);
+    ({ logSpy, errorSpy } = mockLog());
   });
 
   afterEach(() => {
-    // Restore console
     restoreMockLog(logSpy, errorSpy);
-    // Nettoyage
     fs.rmSync(TEST_DIR, { recursive: true, force: true });
     process.chdir(originalCwd);
   });
@@ -34,9 +32,8 @@ describe("setupPackage()", () => {
     const pkg = JSON.parse(fs.readFileSync(TEST_PACKAGE_JSON, "utf-8"));
     expect(pkg.scripts.dev).toBe("next dev && track-dev-time start");
 
-    // Vérifie qu'on a bien loggé la modification
     expect(logSpy).toHaveBeenCalledWith(
-      "✅ Script 'dev' modifié dans package.json"
+      "✅ 'dev' script modified in package.json"
     );
   });
 
@@ -47,12 +44,11 @@ describe("setupPackage()", () => {
     expect(gitignore).toContain("track-dev-time/");
 
     expect(logSpy).toHaveBeenCalledWith(
-      "✅ track-dev-time/ ajouté à .gitignore"
+      "✅ track-dev-time/ added to .gitignore"
     );
   });
 
   it("should not duplicate track-dev-time/ in .gitignore and log info", () => {
-    // On ajoute déjà la ligne une fois
     fs.writeFileSync(
       TEST_GITIGNORE,
       "node_modules\ntrack-dev-time/\n",
@@ -64,9 +60,8 @@ describe("setupPackage()", () => {
     const gitignore = fs.readFileSync(TEST_GITIGNORE, "utf-8");
     expect((gitignore.match(/track-dev-time\//g) || []).length).toBe(1);
 
-    // Vérifie qu'on a loggué qu'elle existait déjà
     expect(logSpy).toHaveBeenCalledWith(
-      "ℹ️ track-dev-time/ déjà dans .gitignore"
+      "ℹ️ track-dev-time/ already in .gitignore"
     );
   });
 
@@ -78,7 +73,7 @@ describe("setupPackage()", () => {
     expect(gitignore).toBe("track-dev-time/");
 
     expect(logSpy).toHaveBeenCalledWith(
-      "✅ Fichier .gitignore créé avec track-dev-time/"
+      "✅ .gitignore file created with track-dev-time/"
     );
   });
 
@@ -95,12 +90,11 @@ describe("setupPackage()", () => {
     const gitignore = fs.readFileSync(TEST_GITIGNORE, "utf-8");
     expect((gitignore.match(/track-dev-time\//g) || []).length).toBe(1);
 
-    // Log vérifiant l'idempotence
     expect(logSpy).toHaveBeenCalledWith(
-      "ℹ️ Le script 'dev' contient déjà 'track-dev-time start'"
+      "ℹ️ The 'dev' script already contains 'track-dev-time start'"
     );
     expect(logSpy).toHaveBeenCalledWith(
-      "ℹ️ track-dev-time/ déjà dans .gitignore"
+      "ℹ️ track-dev-time/ already in .gitignore"
     );
   });
 });

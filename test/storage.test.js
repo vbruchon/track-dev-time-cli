@@ -16,12 +16,14 @@ import {
   restoreMockLog,
   TEST_PATH,
 } from "./utils";
+import * as storage from "../lib/storage.js";
 
 let logSpy, errorSpy;
 
 describe("ensureSessionStorage", () => {
   beforeEach(() => {
     cleanupTestData();
+    storage.__setSessionPath(TEST_PATH);
 
     mockLog(logSpy, errorSpy);
   });
