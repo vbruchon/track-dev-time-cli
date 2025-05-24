@@ -1,6 +1,6 @@
 {
   "name": "track-dev-time",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "CLI tool to track your coding sessions with start, pause and stop commands. Outputs session data to a JSON file.",
   "bin": {
     "track-dev-time": "./bin/cli.js"
@@ -27,6 +27,9 @@
     "chokidar": "^4.0.3",
     "commander": "^13.1.0",
     "nanoid": "^5.1.5"
+  },
+  "peerDependencies": {
+    "concurrently": "^9.1.2"
   },
   "devDependencies": {
     "vitest": "^3.1.3"
