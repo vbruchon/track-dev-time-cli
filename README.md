@@ -162,3 +162,5 @@ You can focus entirely on coding while **track-dev-time** quietly handles the ti
 - When the terminal is closed or the dev command is interrupted (`Ctrl+C`)
 
 The CLI uses these system signals to automatically stop the session and write the final session data to the JSON file. This way, you don’t need to manually run `track-dev-time stop`.
+
+> 💡 If the server is restarted within 5 minutes, the same session can be resumed automatically instead of starting a new one.
