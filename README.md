@@ -28,11 +28,11 @@ You can install **track-dev-time** using any of the following package managers:
 ⚠️ concurrently is required by track-dev-time to run both the server and the tracker in parallel. Please install it as a development dependency:
 
 ```bash
-  # pnpm
-  pnpm add -D concurrently
-
   # npm
   npm install --save-dev concurrently
+
+  # pnpm
+  pnpm add -D concurrently
 
   # yarn
   yarn add --dev concurrently
@@ -164,3 +164,26 @@ You can focus entirely on coding while **track-dev-time** quietly handles the ti
 The CLI uses these system signals to automatically stop the session and write the final session data to the JSON file. This way, you don’t need to manually run `track-dev-time stop`.
 
 > 💡 If the server is restarted within 5 minutes, the same session can be resumed automatically instead of starting a new one.
+
+## Uninstall
+
+To completely uninstall **track-dev-time** and remove all related files and modifications, please run the following command before uninstalling the package for a clean uninstall:
+
+```bash
+  # npm
+  npx track-dev-time uninstall
+
+  # pnpm
+  pnpm dlx track-dev-time uninstall
+
+  # yarn
+  yarn track-dev-time uninstall
+```
+
+This will:
+
+- Delete the .track-dev-time folder containing your session data.
+- Clean .gitignore entries added by track-dev-time.
+- Restore your original dev script in package.json.
+
+If you want to manually remove all traces, or if you uninstall the package before running the uninstall command, please delete the .track-dev-time folder, clean your .gitignore, and restore the dev script in your package.json to its original state.

@@ -2,6 +2,7 @@
 import { Command } from "commander";
 import { listTracking, startTracking, stopTracking } from "../lib/index.js";
 import { setupPackage } from "../lib/setup.js";
+import { uninstallTrackDevTime } from "../lib/uninstall.js";
 
 const program = new Command();
 
@@ -20,7 +21,9 @@ program
   .action(stopTracking);
 program.command("setup").description("Setup package").action(setupPackage);
 program.command("list").description("List all sessions").action(listTracking);
+program
+  .command("uninstall")
+  .description("Clean up project files and prepare for uninstall")
+  .action(uninstallTrackDevTime);
 
 program.parse(process.argv);
-
-// Ajouter une commande list (liste toutes les sessions)
