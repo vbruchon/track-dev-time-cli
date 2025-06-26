@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+import dotenv from "dotenv";
+dotenv.config();
+
 import { Command } from "commander";
 import { listTracking, startTracking, stopTracking } from "../lib/index.js";
 import { setupPackage } from "../lib/setup.js";

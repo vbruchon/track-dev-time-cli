@@ -34,7 +34,7 @@
   "dependencies": {
     "chokidar": "^4.0.3",
     "commander": "^13.1.0",
-    "nanoid": "^5.1.5"
+    "dotenv": "^16.5.0"
   },
   "peerDependencies": {
     "concurrently": "^9.1.2"
