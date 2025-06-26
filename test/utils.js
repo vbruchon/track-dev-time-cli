@@ -1,12 +1,14 @@
 import fs from "fs";
-import { nanoid } from "nanoid";
 import path from "path";
 import { getCurrentSession, saveSession } from "../lib/storage";
 import { vi } from "vitest";
 
 export const TEST_PATH = path.resolve("test_data", "sessions.json");
+let sessionCounter = 0;
+let pauseCounter = 0;
+
 export let currentSession = {
-  id: `session-${nanoid()}`,
+  id: `session-${sessionCounter++}`,
   start: new Date().toISOString(),
   pauses: [],
   end: null,
@@ -23,10 +25,14 @@ export const cleanupTestData = () => {
   if (fs.existsSync(dir)) {
     fs.rmSync(dir, { recursive: true, force: true });
   }
+
+  // Reset counters for fresh test state
+  sessionCounter = 0;
+  pauseCounter = 0;
 };
 
 export const makeCurrentSession = () => ({
-  id: `session-${nanoid()}`,
+  id: `session-${sessionCounter++}`,
   start: new Date().toISOString(),
   pauses: [],
   end: null,
@@ -40,7 +46,7 @@ export const createAndSaveSession = () => {
 };
 
 export const createPause = (startOffsetMinutes = 15) => ({
-  id: nanoid(5),
+  id: `pause-${pauseCounter++}`,
   start: new Date(Date.now() + startOffsetMinutes * 60 * 1000).toISOString(),
   end: null,
 });

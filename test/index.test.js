@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { calculTotalDuration } from "../lib/index"; // ajuste le chemin
+import { calculTotalDuration } from "../lib/utils.js";
 
 describe("calculTotalDuration", () => {
   it("calcule correctement la durée sans pause", () => {
