@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { getCurrentSession, saveSession } from "../lib/storage";
+import { getCurrentSession, saveSession } from "../lib/sessions/storage.js";
 import { vi } from "vitest";
 
 export const TEST_PATH = path.resolve("test_data", "sessions.json");

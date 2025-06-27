@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { calculTotalDuration } from "../lib/utils.js";
+import { calculTotalDuration } from "../lib/utils/time.js";
 
 describe("calculTotalDuration", () => {
   it("calcule correctement la durée sans pause", () => {

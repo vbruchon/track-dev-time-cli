@@ -2,7 +2,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import fs from "fs";
 import path from "path";
-import { setupPackage } from "../lib/setup.js";
+import { setupPackage } from "../lib/commands/setup.js";
 import { mockLog, restoreMockLog, setupTestEnvironment } from "./utils.js";
 
 const TEST_DIR = path.resolve("./tests/tmp");
