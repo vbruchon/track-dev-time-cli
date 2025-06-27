@@ -25,19 +25,6 @@ You can install **track-dev-time** using any of the following package managers:
   yarn add track-dev-time --dev
 ```
 
-⚠️ concurrently is required by track-dev-time to run both the server and the tracker in parallel. Please install it as a development dependency:
-
-```bash
-  # npm
-  npm install --save-dev concurrently
-
-  # pnpm
-  pnpm add -D concurrently
-
-  # yarn
-  yarn add --dev concurrently
-```
-
 ## Setup
 
 Once installed, run the setup command to automatically configure your project:
@@ -57,6 +44,9 @@ This will:
 
 - Update your package.json to run the tracker and dev server concurrently.
 - Add .track-dev-time/ to your .gitignore to exclude session files from version control.
+
+ℹ️ track-dev-time uses concurrently under the hood to run your server and tracker in parallel.
+No need to install it manually — it’s bundled with the CLI.
 
 ## How It Works
 

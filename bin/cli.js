@@ -1,14 +1,8 @@
 #!/usr/bin/env node
-import dotenv from "dotenv";
-dotenv.config();
-
 import { Command } from "commander";
 import { listTracking } from "../lib/commands/list-sessions.js";
 import { setupPackage } from "../lib/commands/setup.js";
-import {
-  startTracking,
-  stopTracking,
-} from "../lib/commands/tracking-session.js";
+import { startTracking, stopTracking } from "../lib/commands/tracking.js";
 import { uninstallTrackDevTime } from "../lib/commands/uninstall.js";
 import { handleAuthCommand } from "../lib/commands/auth.js";
 
