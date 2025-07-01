@@ -5,6 +5,7 @@ import { setupPackage } from "../lib/commands/setup.js";
 import { startTracking, stopTracking } from "../lib/commands/tracking.js";
 import { uninstallTrackDevTime } from "../lib/commands/uninstall.js";
 import { handleAuthCommand } from "../lib/commands/auth.js";
+import { syncSession } from "../lib/commands/sync-session.js";
 
 const program = new Command();
 
@@ -32,5 +33,9 @@ program
   .description("Save your Dashboard API key globally to enable session syncing")
   .option("--apikey <key>", "Your API key from the dashboard")
   .action(handleAuthCommand);
+program
+  .command("sync")
+  .description("Synchronyse your local sessions to your Dashboard")
+  .action(syncSession);
 
 program.parse(process.argv);
