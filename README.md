@@ -77,6 +77,46 @@ The **-c ,green** option sets the color of the track process logs to green, maki
 
 This setup ensures that both your development server and the tracking tool run simultaneously without interfering with your usual workflow.
 
+## Configuration of Track Dev Time
+
+Track Dev Time uses a local JSON configuration file to customize behaviors such as inactivity timeout and automatic session resume window.
+
+### Configuration File
+
+The config file is located in the hidden folder `.track-dev-time` at your project root:
+`.track-dev-time/config.json`
+
+### Default Content
+
+On first run or when executing the `setup` command, a `config.json` file is automatically created with the following default values:
+
+```json
+{
+  "inactivityTimeoutMs": 900000,
+  "autoResumeSessionWindowMs": 300000
+}
+```
+
+- **inactivityTimeoutMs**: Inactivity timeout in milliseconds before the session is automatically paused. Default is 900,000 ms = 15 minutes.
+- **autoResumeSessionWindowMs**: Time window in milliseconds to automatically resume a previous session if restarted within this delay. Default is 300,000 ms = 5 minutes.
+
+### Modifying the Configuration
+
+You can modify these values by manually editing the config.json file with your favorite text editor.
+
+For example, to reduce the inactivity timeout to 5 minutes, update the file as follows:
+
+```json
+{
+  "inactivityTimeoutMs": 300000,
+  "autoResumeSessionWindowMs": 300000
+}
+```
+
+### Applying Changes
+
+New values will be applied as soon as the CLI reads the config file again, typically on start or when running commands.
+
 ## Data File
 
 Your development time is automatically recorded in a JSON file located in your project directory. This file contains detailed information about each development session, including any pauses.
