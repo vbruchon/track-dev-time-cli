@@ -33,10 +33,10 @@
   "dependencies": {
     "chalk": "^5.4.1",
     "chokidar": "^4.0.3",
-    "commander": "^13.1.0",
-    "concurrently": "^9.2.0"
+    "commander": "^13.1.0"
   },
   "devDependencies": {
+    "concurrently": "^9.2.0",
     "vitest": "^3.1.3"
   }
 }

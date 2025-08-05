@@ -4,6 +4,10 @@
 
 **track-dev-time** is a CLI tool designed to automatically track your development sessions. When installed in a project, it modifies the startup scripts and tracks time seamlessly, without requiring any additional input from the user.
 
+### Why?
+
+Developers often underestimate how much time is spent coding. Track Dev Time helps you capture that data automatically — no timers, no distractions, just insights.
+
 ## Features
 
 - **Automatic Tracking**: As soon as you run the development script (`npm run dev` or equivalent), **track-dev-time** automatically starts tracking the session.
@@ -42,11 +46,17 @@ Once installed, run the setup command to automatically configure your project:
 
 This will:
 
+- Automatically create a .track-dev-time/config.json file with default configuration values.
 - Update your package.json to run the tracker and dev server concurrently.
 - Add .track-dev-time/ to your .gitignore to exclude session files from version control.
+- Prompt you to install concurrently if it’s not already installed.
 
-ℹ️ track-dev-time uses concurrently under the hood to run your server and tracker in parallel.
-No need to install it manually — it’s bundled with the CLI.
+ℹ️ To enable automatic tracking while your dev server is running, your project must run both tasks in parallel (dev server + tracker).  
+`track-dev-time` recommends using [`concurrently`](https://www.npmjs.com/package/concurrently) for this purpose.
+
+During setup, the CLI will detect if `concurrently` is installed and offer to install it automatically if it’s missing.
+
+You're free to use any other process runner (like `npm-run-all`, `turbo`, etc.), but you’ll need to set it up manually to ensure the tracker and your server run together.
 
 ## How It Works
 
@@ -197,7 +207,7 @@ The CLI uses these system signals to automatically stop the session and write th
 
 ## Uninstall
 
-To completely uninstall **track-dev-time** and remove all related files and modifications, please run the following command before uninstalling the package for a clean uninstall:
+To completely uninstall **track-dev-time** and remove all related files and modifications, run the following command **before** uninstalling the package:
 
 ```bash
   # npm
@@ -210,10 +220,18 @@ To completely uninstall **track-dev-time** and remove all related files and modi
   yarn track-dev-time uninstall
 ```
 
-This will:
+This command will:
 
-- Delete the .track-dev-time folder containing your session data.
-- Clean .gitignore entries added by track-dev-time.
-- Restore your original dev script in package.json.
+- Delete the `.track-dev-time` folder, including session data, `config.json`, and `meta.json`.
+- Remove `.track-dev-time/` from your `.gitignore`.
+- Restore the original `dev` script in your `package.json`, if it was backed up during setup.
+- Automatically uninstall `concurrently` if it was installed by the CLI during setup.
 
-If you want to manually remove all traces, or if you uninstall the package before running the uninstall command, please delete the .track-dev-time folder, clean your .gitignore, and restore the dev script in your package.json to its original state.
+If you’ve already removed the package without running this command, you can manually:
+
+- Delete the `.track-dev-time/` directory
+- Remove the `.track-dev-time/` entry from your `.gitignore`
+- Restore your original `dev` script in `package.json`
+- Optionally uninstall `concurrently` with your package manager if you no longer use it
+
+💡 Run npm uninstall track-dev-time (or yarn remove / pnpm remove) only after the uninstall command to ensure a clean removal.
