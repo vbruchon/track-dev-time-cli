@@ -1,13 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { TEST_SESSION_PATH, writeConfigJson } from "./utils.js";
+import { TEST_SESSION_PATH } from "./utils.js";
 import { readDataFromFile } from "../lib/utils/file-storage";
 import { beforeEach } from "vitest";
 import { vi } from "vitest";
-import path from "path";
-import fs from "fs";
-
 let startTracking, stopTracking, markInactivity, markActivity, watcherModule;
-const TEST_CONFIG_PATH = path.resolve("test_data/.track-dev-time/config.json");
 
 beforeEach(async () => {
   vi.resetModules();
@@ -18,12 +14,6 @@ beforeEach(async () => {
     "../lib/storage/watcher.js"
   ));
   watcherModule = await import("../lib/storage/watcher.js");
-  const configDir = path.dirname(TEST_CONFIG_PATH);
-
-  if (!fs.existsSync(configDir)) {
-    fs.mkdirSync(configDir, { recursive: true });
-  }
-  writeConfigJson(TEST_CONFIG_PATH);
 });
 
 describe("markInactivity and markActivity", () => {
@@ -46,7 +36,7 @@ describe("markInactivity and markActivity", () => {
     await startTracking(TEST_SESSION_PATH);
 
     markInactivity(TEST_SESSION_PATH);
-    markActivity(TEST_SESSION_PATH, TEST_CONFIG_PATH);
+    markActivity(TEST_SESSION_PATH);
 
     const data = readDataFromFile(TEST_SESSION_PATH);
     const session = data.sessions[0];
@@ -64,15 +54,15 @@ describe("markInactivity and markActivity", () => {
 
     // Pause 1
     markInactivity(TEST_SESSION_PATH);
-    markActivity(TEST_SESSION_PATH, TEST_CONFIG_PATH);
+    markActivity(TEST_SESSION_PATH);
 
     // Pause 2
     markInactivity(TEST_SESSION_PATH);
-    markActivity(TEST_SESSION_PATH, TEST_CONFIG_PATH);
+    markActivity(TEST_SESSION_PATH);
 
     // Pause 3
     markInactivity(TEST_SESSION_PATH);
-    markActivity(TEST_SESSION_PATH, TEST_CONFIG_PATH);
+    markActivity(TEST_SESSION_PATH);
 
     const data = readDataFromFile(TEST_SESSION_PATH);
     const session = data.sessions[0];

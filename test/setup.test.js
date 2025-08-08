@@ -9,6 +9,14 @@ const GITIGNORE_PATH = path.join(TEST_DIR, ".gitignore");
 const SESSION_PATH = path.join(TEST_DIR, ".track-dev-time/sessions.json");
 const CONFIG_PATH = path.join(TEST_DIR, ".track-dev-time/config.json");
 
+export const writePackageJson = (scripts = { dev: "next dev" }) => {
+  fs.writeFileSync(
+    PACKAGE_JSON_PATH,
+    JSON.stringify({ name: "test", scripts }, null, 2),
+    "utf-8"
+  );
+};
+
 vi.mock("../lib/utils/concurrently.js", () => ({
   isConcurrentlyInstalled: vi.fn(() => true),
   installConcurrently: vi.fn(async () => Promise.resolve()),
@@ -24,7 +32,6 @@ vi.mock("readline", () => {
 });
 
 import { setupPackage } from "../lib/commands/setup";
-import { writeConfigJson, writePackageJson } from "./utils";
 
 beforeEach(() => {
   vi.resetModules();
@@ -33,13 +40,7 @@ beforeEach(() => {
   if (fs.existsSync(TEST_DIR)) fs.rmSync(TEST_DIR, { recursive: true });
   fs.mkdirSync(TEST_DIR, { recursive: true });
 
-  writePackageJson(PACKAGE_JSON_PATH);
-  const configDir = path.dirname(CONFIG_PATH);
-
-  if (!fs.existsSync(configDir)) {
-    fs.mkdirSync(configDir, { recursive: true });
-  }
-  writeConfigJson(CONFIG_PATH);
+  writePackageJson();
 });
 
 describe("setupPackage", () => {
