@@ -49,7 +49,7 @@ describe("markInactivity and markActivity", () => {
     await stopTracking(TEST_SESSION_PATH);
   });
 
-  it("gère plusieurs pauses dans la même session", async () => {
+  it("handles multiple pauses within the same session", async () => {
     await startTracking(TEST_SESSION_PATH);
 
     // Pause 1
@@ -82,6 +82,7 @@ describe("markInactivity and markActivity", () => {
 
     await stopTracking(TEST_SESSION_PATH);
   });
+
   it("should stop triggering inactivity/activity after stopTracking", async () => {
     await startTracking(TEST_SESSION_PATH);
 

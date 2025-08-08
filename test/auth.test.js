@@ -29,7 +29,6 @@ describe("auth command --apikey", () => {
   });
 
   it("prompts for confirmation before overwriting if a different key already exists", async () => {
-    // Ecrire une clé existante différente
     fs.mkdirSync(CONFIG_DIR, { recursive: true });
     fs.writeFileSync(CONFIG_PATH, JSON.stringify({ apiKey: "old-key" }));
 
@@ -41,7 +40,6 @@ describe("auth command --apikey", () => {
     };
     vi.spyOn(readline, "createInterface").mockReturnValue(rlMock);
 
-    // Spy console.log pour vérifier message de succès
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 
     handleAuthCommand({ apikey: "new-key" });
@@ -51,14 +49,12 @@ describe("auth command --apikey", () => {
       expect.any(Function)
     );
 
-    // Clé mise à jour
     const saved = JSON.parse(fs.readFileSync(CONFIG_PATH, "utf-8"));
     expect(saved.apiKey).toBe("new-key");
     expect(logSpy).toHaveBeenCalledWith("✅ API key saved successfully!");
   });
 
   it("aborts overwrite if the response is not 'y'", () => {
-    // Ecrire une clé existante différente
     fs.mkdirSync(CONFIG_DIR, { recursive: true });
     fs.writeFileSync(CONFIG_PATH, JSON.stringify({ apiKey: "old-key" }));
 
@@ -70,13 +66,11 @@ describe("auth command --apikey", () => {
     };
     vi.spyOn(readline, "createInterface").mockReturnValue(rlMock);
 
-    // Spy console.log et process.exit
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => {
       throw new Error("process.exit called");
     });
 
-    // Doit appeler process.exit(0) => on catch l'erreur pour continuer le test
     expect(() => handleAuthCommand({ apikey: "new-key" })).toThrow(
       "process.exit called"
     );
@@ -85,7 +79,6 @@ describe("auth command --apikey", () => {
       "❌ Operation aborted, API key was not changed."
     );
 
-    // La clé ne doit pas avoir changé
     const saved = JSON.parse(fs.readFileSync(CONFIG_PATH, "utf-8"));
     expect(saved.apiKey).toBe("old-key");
 

@@ -57,7 +57,7 @@ describe("setupPackage", () => {
     expect(fs.existsSync(CONFIG_PATH)).toBe(true);
   });
 
-  it("sauvegarde l’ancien script dev dans trackDevTimeBackupDevScript", async () => {
+  it("saves the old dev script in trackDevTimeBackupDevScript", async () => {
     await setupPackage({
       sessionsPath: SESSION_PATH,
       configPath: CONFIG_PATH,
@@ -69,7 +69,7 @@ describe("setupPackage", () => {
     expect(pkg.trackDevTimeBackupDevScript).toBe("next dev");
   });
 
-  it("affiche une erreur si pas de script dev", async () => {
+  it("shows an error if there is no dev script", async () => {
     fs.writeFileSync(
       PACKAGE_JSON_PATH,
       JSON.stringify({ name: "test", scripts: {} }, null, 2)
@@ -91,7 +91,7 @@ describe("setupPackage", () => {
     );
   });
 
-  it("sauvegarde l’ancien script dev dans trackDevTimeBackupDevScript", async () => {
+  it("backs up the old dev script in trackDevTimeBackupDevScript", async () => {
     await setupPackage({
       sessionsPath: SESSION_PATH,
       configPath: CONFIG_PATH,
@@ -103,7 +103,7 @@ describe("setupPackage", () => {
     expect(pkg.trackDevTimeBackupDevScript).toBe("next dev");
   });
 
-  it("modifie le script dev avec concurrently et track-dev-time", async () => {
+  it("modifies the dev script to use concurrently and track-dev-time", async () => {
     await setupPackage({
       sessionsPath: SESSION_PATH,
       configPath: CONFIG_PATH,
@@ -117,7 +117,7 @@ describe("setupPackage", () => {
     expect(pkg.scripts.dev).toContain("track-dev-time start");
   });
 
-  it("n’écrase pas un script dev déjà modifié avec track-dev-time", async () => {
+  it("does not overwrite a dev script already modified with track-dev-time", async () => {
     writePackageJson({
       dev: 'concurrently "next dev" "track-dev-time start"',
     });
@@ -133,7 +133,7 @@ describe("setupPackage", () => {
     expect(pkg.trackDevTimeBackupDevScript).toBeUndefined();
   });
 
-  it("ajoute .track-dev-time/ dans .gitignore s’il n’y est pas déjà", async () => {
+  it("adds .track-dev-time/ to .gitignore if it is not already present", async () => {
     fs.writeFileSync(GITIGNORE_PATH, "node_modules\n");
 
     await setupPackage({
@@ -147,7 +147,7 @@ describe("setupPackage", () => {
     expect(gitignoreContent).toMatch(/\.track-dev-time\//);
   });
 
-  it("ne réécrit pas .gitignore si .track-dev-time/ y est déjà présent", async () => {
+  it("does not rewrite .gitignore if .track-dev-time/ is already present", async () => {
     fs.writeFileSync(GITIGNORE_PATH, ".track-dev-time/\n");
 
     const appendSpy = vi.spyOn(fs, "appendFileSync");
@@ -162,7 +162,7 @@ describe("setupPackage", () => {
     expect(appendSpy).not.toHaveBeenCalled();
   });
 
-  it("crée .gitignore si absent", async () => {
+  it("creates .gitignore if it is missing", async () => {
     await setupPackage({
       sessionsPath: SESSION_PATH,
       configPath: CONFIG_PATH,
