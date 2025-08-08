@@ -1,100 +1,177 @@
-// tests/setup.test.js
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import fs from "fs";
 import path from "path";
-import { setupPackage } from "../lib/commands/setup.js";
-import { mockLog, restoreMockLog, setupTestEnvironment } from "./utils.js";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 
-const TEST_DIR = path.resolve("./tests/tmp");
-const TEST_PACKAGE_JSON = path.join(TEST_DIR, "package.json");
-const TEST_GITIGNORE = path.join(TEST_DIR, ".gitignore");
-const originalCwd = process.cwd();
+// Dossiers et chemins de test
+const TEST_DIR = path.resolve("test_data/setup");
+const PACKAGE_JSON_PATH = path.join(TEST_DIR, "package.json");
+const GITIGNORE_PATH = path.join(TEST_DIR, ".gitignore");
+const SESSION_PATH = path.join(TEST_DIR, ".track-dev-time/sessions.json");
+const CONFIG_PATH = path.join(TEST_DIR, ".track-dev-time/config.json");
 
-describe("setupPackage()", () => {
-  let logSpy;
-  let errorSpy;
+// Helpers
+export const writePackageJson = (scripts = { dev: "next dev" }) => {
+  fs.writeFileSync(
+    PACKAGE_JSON_PATH,
+    JSON.stringify({ name: "test", scripts }, null, 2),
+    "utf-8"
+  );
+};
 
-  beforeEach(() => {
-    setupTestEnvironment(TEST_DIR, TEST_PACKAGE_JSON, TEST_GITIGNORE);
-    process.chdir(TEST_DIR);
-    ({ logSpy, errorSpy } = mockLog());
+vi.mock("../lib/utils/concurrently.js", () => ({
+  isConcurrentlyInstalled: vi.fn(() => true),
+  installConcurrently: vi.fn(async () => Promise.resolve()),
+}));
+
+vi.mock("readline", () => {
+  return {
+    createInterface: () => ({
+      question: (questionText, cb) => cb("y"), // Répond "y" automatiquement
+      close: () => {},
+    }),
+  };
+});
+
+import { setupPackage } from "../lib/commands/setup";
+
+beforeEach(() => {
+  vi.resetModules();
+  vi.restoreAllMocks();
+
+  if (fs.existsSync(TEST_DIR)) fs.rmSync(TEST_DIR, { recursive: true });
+  fs.mkdirSync(TEST_DIR, { recursive: true });
+
+  writePackageJson();
+});
+
+describe("setupPackage", () => {
+  it("crée le dossier .track-dev-time et les fichiers sessions/config", async () => {
+    await setupPackage({
+      sessionsPath: SESSION_PATH,
+      configPath: CONFIG_PATH,
+      packageJsonPath: PACKAGE_JSON_PATH,
+      gitignorePath: GITIGNORE_PATH,
+    });
+
+    expect(fs.existsSync(path.dirname(SESSION_PATH))).toBe(true);
+    expect(fs.existsSync(SESSION_PATH)).toBe(true);
+    expect(fs.existsSync(CONFIG_PATH)).toBe(true);
   });
 
-  afterEach(() => {
-    restoreMockLog(logSpy, errorSpy);
-    fs.rmSync(TEST_DIR, { recursive: true, force: true });
-    process.chdir(originalCwd);
+  it("sauvegarde l’ancien script dev dans trackDevTimeBackupDevScript", async () => {
+    await setupPackage({
+      sessionsPath: SESSION_PATH,
+      configPath: CONFIG_PATH,
+      packageJsonPath: PACKAGE_JSON_PATH,
+      gitignorePath: GITIGNORE_PATH,
+    });
+
+    const pkg = JSON.parse(fs.readFileSync(PACKAGE_JSON_PATH, "utf-8"));
+    expect(pkg.trackDevTimeBackupDevScript).toBe("next dev");
   });
 
-  it("should update the dev script in package.json and log the change", () => {
-    setupPackage();
-
-    const pkg = JSON.parse(fs.readFileSync(TEST_PACKAGE_JSON, "utf-8"));
-    expect(pkg.scripts.dev).toBe("next dev && track-dev-time start");
-
-    expect(logSpy).toHaveBeenCalledWith(
-      "✅ 'dev' script modified in package.json"
-    );
-  });
-
-  it("should add track-dev-time/ to .gitignore and log the addition", () => {
-    setupPackage();
-
-    const gitignore = fs.readFileSync(TEST_GITIGNORE, "utf-8");
-    expect(gitignore).toContain("track-dev-time/");
-
-    expect(logSpy).toHaveBeenCalledWith(
-      "✅ track-dev-time/ added to .gitignore"
-    );
-  });
-
-  it("should not duplicate track-dev-time/ in .gitignore and log info", () => {
+  it("affiche une erreur si pas de script dev", async () => {
     fs.writeFileSync(
-      TEST_GITIGNORE,
-      "node_modules\ntrack-dev-time/\n",
-      "utf-8"
+      PACKAGE_JSON_PATH,
+      JSON.stringify({ name: "test", scripts: {} }, null, 2)
     );
 
-    setupPackage();
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
 
-    const gitignore = fs.readFileSync(TEST_GITIGNORE, "utf-8");
-    expect((gitignore.match(/track-dev-time\//g) || []).length).toBe(1);
+    await setupPackage({
+      sessionsPath: SESSION_PATH,
+      configPath: CONFIG_PATH,
+      packageJsonPath: PACKAGE_JSON_PATH,
+      gitignorePath: GITIGNORE_PATH,
+    });
 
-    expect(logSpy).toHaveBeenCalledWith(
-      "ℹ️ track-dev-time/ already in .gitignore"
-    );
-  });
-
-  it("should create .gitignore if missing and log creation", () => {
-    fs.unlinkSync(TEST_GITIGNORE);
-    setupPackage();
-
-    const gitignore = fs.readFileSync(TEST_GITIGNORE, "utf-8").trim();
-    expect(gitignore).toBe("track-dev-time/");
-
-    expect(logSpy).toHaveBeenCalledWith(
-      "✅ .gitignore file created with track-dev-time/"
+    expect(consoleError).toHaveBeenCalledWith(
+      "❌ No 'dev' script found in package.json."
     );
   });
 
-  it("does not duplicate changes when called multiple times", () => {
-    setupPackage();
-    setupPackage();
-    setupPackage();
+  it("sauvegarde l’ancien script dev dans trackDevTimeBackupDevScript", async () => {
+    await setupPackage({
+      sessionsPath: SESSION_PATH,
+      configPath: CONFIG_PATH,
+      packageJsonPath: PACKAGE_JSON_PATH,
+      gitignorePath: GITIGNORE_PATH,
+    });
 
-    const pkg = JSON.parse(fs.readFileSync(TEST_PACKAGE_JSON, "utf-8"));
-    expect((pkg.scripts.dev.match(/track-dev-time start/g) || []).length).toBe(
-      1
-    );
+    const pkg = JSON.parse(fs.readFileSync(PACKAGE_JSON_PATH, "utf-8"));
+    expect(pkg.trackDevTimeBackupDevScript).toBe("next dev");
+  });
 
-    const gitignore = fs.readFileSync(TEST_GITIGNORE, "utf-8");
-    expect((gitignore.match(/track-dev-time\//g) || []).length).toBe(1);
+  it("modifie le script dev avec concurrently et track-dev-time", async () => {
+    await setupPackage({
+      sessionsPath: SESSION_PATH,
+      configPath: CONFIG_PATH,
+      packageJsonPath: PACKAGE_JSON_PATH,
+      gitignorePath: GITIGNORE_PATH,
+    });
 
-    expect(logSpy).toHaveBeenCalledWith(
-      "ℹ️ The 'dev' script already contains 'track-dev-time start'"
-    );
-    expect(logSpy).toHaveBeenCalledWith(
-      "ℹ️ track-dev-time/ already in .gitignore"
-    );
+    const pkg = JSON.parse(fs.readFileSync(PACKAGE_JSON_PATH, "utf-8"));
+
+    expect(pkg.scripts.dev).toContain("concurrently");
+    expect(pkg.scripts.dev).toContain("track-dev-time start");
+  });
+
+  it("n’écrase pas un script dev déjà modifié avec track-dev-time", async () => {
+    writePackageJson({
+      dev: 'concurrently "next dev" "track-dev-time start"',
+    });
+
+    await setupPackage({
+      sessionsPath: SESSION_PATH,
+      configPath: CONFIG_PATH,
+      packageJsonPath: PACKAGE_JSON_PATH,
+      gitignorePath: GITIGNORE_PATH,
+    });
+
+    const pkg = JSON.parse(fs.readFileSync(PACKAGE_JSON_PATH, "utf-8"));
+    expect(pkg.trackDevTimeBackupDevScript).toBeUndefined();
+  });
+
+  it("ajoute .track-dev-time/ dans .gitignore s’il n’y est pas déjà", async () => {
+    fs.writeFileSync(GITIGNORE_PATH, "node_modules\n");
+
+    await setupPackage({
+      sessionsPath: SESSION_PATH,
+      configPath: CONFIG_PATH,
+      packageJsonPath: PACKAGE_JSON_PATH,
+      gitignorePath: GITIGNORE_PATH,
+    });
+
+    const gitignoreContent = fs.readFileSync(GITIGNORE_PATH, "utf-8");
+    expect(gitignoreContent).toMatch(/\.track-dev-time\//);
+  });
+
+  it("ne réécrit pas .gitignore si .track-dev-time/ y est déjà présent", async () => {
+    fs.writeFileSync(GITIGNORE_PATH, ".track-dev-time/\n");
+
+    const appendSpy = vi.spyOn(fs, "appendFileSync");
+
+    await setupPackage({
+      sessionsPath: SESSION_PATH,
+      configPath: CONFIG_PATH,
+      packageJsonPath: PACKAGE_JSON_PATH,
+      gitignorePath: GITIGNORE_PATH,
+    });
+
+    expect(appendSpy).not.toHaveBeenCalled();
+  });
+
+  it("crée .gitignore si absent", async () => {
+    await setupPackage({
+      sessionsPath: SESSION_PATH,
+      configPath: CONFIG_PATH,
+      packageJsonPath: PACKAGE_JSON_PATH,
+      gitignorePath: GITIGNORE_PATH,
+    });
+
+    const gitignoreContent = fs.readFileSync(GITIGNORE_PATH, "utf-8");
+    expect(gitignoreContent).toMatch(/\.track-dev-time\//);
   });
 });

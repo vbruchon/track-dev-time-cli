@@ -1,87 +1,75 @@
 import fs from "fs";
 import path from "path";
-import { getCurrentSession, saveSession } from "../lib/sessions/storage.js";
-import { vi } from "vitest";
 
-export const TEST_PATH = path.resolve("test_data", "sessions.json");
-let sessionCounter = 0;
-let pauseCounter = 0;
+const BASE_TEST_DIR = path.resolve("test_data", ".track-dev-time");
+export const TEST_SESSION_PATH = path.resolve(BASE_TEST_DIR, "sessions.json");
 
-export let currentSession = {
-  id: `session-${sessionCounter++}`,
-  start: new Date().toISOString(),
-  pauses: [],
-  end: null,
-  duration: null,
+export const deleteTestFolderIfExist = () => {
+  if (fs.existsSync(BASE_TEST_DIR)) {
+    fs.rmSync(BASE_TEST_DIR, { recursive: true, force: true });
+  }
 };
 
-export const cleanupTestData = () => {
-  if (fs.existsSync(TEST_PATH)) {
-    fs.unlinkSync(TEST_PATH);
-  }
+export const createAndWriteDataFile = () => {
+  fs.mkdirSync(BASE_TEST_DIR, { recursive: true });
 
-  const dir = path.dirname(TEST_PATH);
-
-  if (fs.existsSync(dir)) {
-    fs.rmSync(dir, { recursive: true, force: true });
-  }
-
-  // Reset counters for fresh test state
-  sessionCounter = 0;
-  pauseCounter = 0;
-};
-
-export const makeCurrentSession = () => ({
-  id: `session-${sessionCounter++}`,
-  start: new Date().toISOString(),
-  pauses: [],
-  end: null,
-  duration: null,
-});
-
-export const createAndSaveSession = () => {
-  const session = makeCurrentSession();
-  saveSession(session, "START", TEST_PATH);
-  return getCurrentSession(TEST_PATH);
-};
-
-export const createPause = (startOffsetMinutes = 15) => ({
-  id: `pause-${pauseCounter++}`,
-  start: new Date(Date.now() + startOffsetMinutes * 60 * 1000).toISOString(),
-  end: null,
-});
-
-export const setupTestEnvironment = (
-  TEST_DIR,
-  TEST_PACKAGE_JSON,
-  TEST_GITIGNORE
-) => {
-  if (!fs.existsSync(TEST_DIR)) {
-    fs.mkdirSync(TEST_DIR, { recursive: true });
-  }
-
-  const packageJson = {
-    name: "test-project",
-    scripts: {
-      dev: "next dev",
-    },
-  };
   fs.writeFileSync(
-    TEST_PACKAGE_JSON,
-    JSON.stringify(packageJson, null, 2),
-    "utf-8"
+    TEST_SESSION_PATH,
+    JSON.stringify({ projectName: "test-project", sessions: [] }, null, 2)
   );
-
-  fs.writeFileSync(TEST_GITIGNORE, "", "utf-8");
 };
 
-export const mockLog = () => {
-  const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-  const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-  return { logSpy, errorSpy };
-};
-
-export const restoreMockLog = (logSpy, errorSpy) => {
-  logSpy?.mockRestore();
-  errorSpy?.mockRestore();
+export const createFakeData = () => {
+  return {
+    projectName: "test-project",
+    sessions: [
+      {
+        id: "session-1",
+        start: "2025-08-07T17:31:03.148Z",
+        pauses: [
+          {
+            id: "pause-1",
+            start: "2025-08-07T17:31:13.165Z",
+            end: "2025-08-07T17:31:24.366Z",
+          },
+        ],
+        end: "2025-08-07T17:31:32.743Z",
+        duration: 18,
+        synced: false,
+      },
+      {
+        id: "session-2",
+        start: "2025-08-08T09:15:00.000Z",
+        pauses: [
+          {
+            id: "pause-1",
+            start: "2025-08-08T09:20:00.000Z",
+            end: "2025-08-08T09:25:00.000Z",
+          },
+        ],
+        end: "2025-08-08T09:45:00.000Z",
+        duration: 30,
+        synced: false,
+      },
+      {
+        id: "session-3",
+        start: "2025-08-09T14:00:00.000Z",
+        pauses: [
+          {
+            id: "pause-1",
+            start: "2025-08-09T14:10:00.000Z",
+            end: "2025-08-09T14:15:00.000Z",
+          },
+          {
+            id: "pause-2",
+            start: "2025-08-09T14:25:00.000Z",
+            end: "2025-08-09T14:30:00.000Z",
+          },
+        ],
+        end: "2025-08-09T15:00:00.000Z",
+        duration: 40,
+        synced: false,
+      },
+    ],
+  };
 };

@@ -6,6 +6,7 @@ import { startTracking, stopTracking } from "../lib/commands/tracking.js";
 import { uninstallTrackDevTime } from "../lib/commands/uninstall.js";
 import { handleAuthCommand } from "../lib/commands/auth.js";
 import { syncSession } from "../lib/commands/sync-session.js";
+import { SESSIONS_PATH } from "../lib/utils/constants.js";
 
 const program = new Command();
 
@@ -17,7 +18,8 @@ program
 program
   .command("start")
   .description("Start coding session")
-  .action(startTracking);
+  .action(() => startTracking(SESSIONS_PATH));
+
 program
   .command("stop")
   .description("Stop and save session")

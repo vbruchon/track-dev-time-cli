@@ -2,7 +2,7 @@ node_modules/
 
 .track-dev-time/
 
-tests/
+test/
 test_data/
 
 .gitignore

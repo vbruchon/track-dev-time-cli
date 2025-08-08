@@ -1,60 +1,104 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import {
-  markActivity,
-  markInactivity,
-  resetPauseStarted,
-} from "../lib/watcher.js";
-import {
-  cleanupTestData,
-  createAndSaveSession,
-  mockLog,
-  restoreMockLog,
-  TEST_PATH,
-} from "./utils.js";
-import fs from "fs";
-import { getCurrentSession } from "../lib/storage.js";
-import * as storage from "../lib/storage.js";
+import { describe, it, expect } from "vitest";
+import { TEST_SESSION_PATH } from "./utils.js";
+import { readDataFromFile } from "../lib/utils/file-storage";
+import { beforeEach } from "vitest";
+import { vi } from "vitest";
+let startTracking, stopTracking, markInactivity, markActivity, watcherModule;
 
-let logSpy, errorSpy;
+beforeEach(async () => {
+  vi.resetModules();
+  ({ startTracking, stopTracking } = await import(
+    "../lib/commands/tracking.js"
+  ));
+  ({ markInactivity, markActivity } = await import(
+    "../lib/storage/watcher.js"
+  ));
+  watcherModule = await import("../lib/storage/watcher.js");
+});
 
 describe("markInactivity and markActivity", () => {
-  beforeEach(() => {
-    cleanupTestData();
-    resetPauseStarted();
-    storage.__setSessionPath(TEST_PATH);
+  it("adds a pause with a start date", async () => {
+    await startTracking(TEST_SESSION_PATH);
 
-    mockLog(logSpy, errorSpy);
+    markInactivity(TEST_SESSION_PATH);
+
+    const data = readDataFromFile(TEST_SESSION_PATH);
+    const session = data.sessions[0];
+
+    expect(session).toBeDefined();
+    expect(session.pauses).toHaveLength(1);
+    expect(typeof session.pauses[0].start).toBe("string");
+
+    await stopTracking(TEST_SESSION_PATH);
   });
 
-  afterEach(() => {
-    restoreMockLog(logSpy, errorSpy);
+  it("closes the current pause with an end date", async () => {
+    await startTracking(TEST_SESSION_PATH);
+
+    markInactivity(TEST_SESSION_PATH);
+    markActivity(TEST_SESSION_PATH);
+
+    const data = readDataFromFile(TEST_SESSION_PATH);
+    const session = data.sessions[0];
+    const pause = session.pauses?.[0];
+
+    expect(pause).toBeDefined();
+    expect(typeof pause.start).toBe("string");
+    expect(typeof pause.end).toBe("string");
+
+    await stopTracking(TEST_SESSION_PATH);
   });
 
-  it("adds a pause with a start date", () => {
-    const session = createAndSaveSession();
-    markInactivity();
+  it("gère plusieurs pauses dans la même session", async () => {
+    await startTracking(TEST_SESSION_PATH);
 
-    const updated = getCurrentSession();
+    // Pause 1
+    markInactivity(TEST_SESSION_PATH);
+    markActivity(TEST_SESSION_PATH);
 
-    expect(updated).toBeDefined();
-    expect(updated.pauses).toHaveLength(1);
-    expect(typeof updated.pauses[0].start).toBe("string");
+    // Pause 2
+    markInactivity(TEST_SESSION_PATH);
+    markActivity(TEST_SESSION_PATH);
 
-    const raw = fs.readFileSync(TEST_PATH, "utf-8");
-    const data = JSON.parse(raw);
-    expect(data.sessions[0].pauses).toHaveLength(1);
+    // Pause 3
+    markInactivity(TEST_SESSION_PATH);
+    markActivity(TEST_SESSION_PATH);
+
+    const data = readDataFromFile(TEST_SESSION_PATH);
+    const session = data.sessions[0];
+
+    expect(session).toBeDefined();
+    expect(session.pauses).toHaveLength(3);
+
+    session.pauses.forEach((pause, index) => {
+      expect(typeof pause.start).toBe("string");
+      expect(typeof pause.end).toBe("string");
+      if (index > 0) {
+        expect(
+          new Date(pause.start) >= new Date(session.pauses[index - 1].end)
+        ).toBe(true);
+      }
+    });
+
+    await stopTracking(TEST_SESSION_PATH);
   });
+  it("should stop triggering inactivity/activity after stopTracking", async () => {
+    await startTracking(TEST_SESSION_PATH);
 
-  it("close current pause with a end date", () => {
-    createAndSaveSession();
+    const inactivitySpy = vi.spyOn(
+      await import("../lib/storage/watcher.js"),
+      "markInactivity"
+    );
+    const activitySpy = vi.spyOn(
+      await import("../lib/storage/watcher.js"),
+      "markActivity"
+    );
 
-    markInactivity();
-    markActivity();
+    await stopTracking(TEST_SESSION_PATH);
 
-    const updated = getCurrentSession();
+    await new Promise((resolve) => setTimeout(resolve, 200));
 
-    expect(updated).toBeDefined();
-    expect(updated.pauses).toHaveLength(1);
-    expect(typeof updated.pauses[0].end).toBe("string");
+    expect(inactivitySpy).not.toHaveBeenCalled();
+    expect(activitySpy).not.toHaveBeenCalled();
   });
 });

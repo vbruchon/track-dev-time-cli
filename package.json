@@ -1,6 +1,6 @@
 {
   "name": "track-dev-time",
-  "version": "2.0.1",
+  "version": "1.0.3",
   "description": "CLI tool to track your coding sessions with start, pause and stop commands. Outputs session data to a JSON file.",
   "repository": {
     "type": "git",
@@ -15,7 +15,7 @@
   },
   "type": "module",
   "scripts": {
-    "test": "vitest"
+    "test": "vitest --run"
   },
   "keywords": [
     "time-tracking",
@@ -33,10 +33,10 @@
   "dependencies": {
     "chalk": "^5.4.1",
     "chokidar": "^4.0.3",
-    "commander": "^13.1.0"
+    "commander": "^13.1.0",
+    "concurrently": "^9.2.0"
   },
   "devDependencies": {
-    "concurrently": "^9.2.0",
     "vitest": "^3.1.3"
   }
 }
