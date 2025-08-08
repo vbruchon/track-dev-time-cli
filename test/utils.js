@@ -73,3 +73,20 @@ export const createFakeData = () => {
     ],
   };
 };
+
+export const writePackageJson = (path, scripts = { dev: "next dev" }) => {
+  fs.writeFileSync(
+    path,
+    JSON.stringify({ name: "test", scripts }, null, 2),
+    "utf-8"
+  );
+};
+
+export const writeConfigJson = (path) => {
+  const configData = {
+    inactivityTimeoutMs: 1000,
+    autoResumeSessionWindowMs: 300000,
+  };
+
+  fs.writeFileSync(path, JSON.stringify(configData, null, 2), "utf-8");
+};
