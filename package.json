@@ -1,6 +1,6 @@
 {
   "name": "track-dev-time",
-  "version": "2.0.3",
+  "version": "2.0.5",
   "description": "CLI tool to track your coding sessions with start, pause and stop commands. Outputs session data to a JSON file.",
   "repository": {
     "type": "git",
